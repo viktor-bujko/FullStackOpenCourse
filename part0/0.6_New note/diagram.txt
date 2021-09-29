@@ -1,0 +1,21 @@
+title Adding new note using Single page app
+
+note over Browser: 
+Supposing /spa page is already open, 
+user enters "Hello" as new note and 
+submits the note.
+end note
+
+note over Browser: 
+After clicking submission button, a new note
+JSON object is created and added to the 
+notes array.
+These notes are then redrawn (still 
+managed by the JS script in the browser) 
+and finally a POST request is sent to the 
+server.
+end note
+
+Browser->Server: HTTP POST https://studies.cs.helsinki.fi/exampleapp/new_note_spa
+
+Server-->Browser: JSON "{"message": "note created"}"
