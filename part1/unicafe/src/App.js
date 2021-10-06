@@ -9,11 +9,61 @@ const Button = ({ clickHandle, label }) => {
   )
 }
 
-const Stats = ({ label, value}) => {
+const StatisticLine = ({ text, value }) => <div>{text}: {value}</div>
+
+const Statistics = ({ feedbacks }) => {
+
+  const values = feedbacks.values
+  const weights = feedbacks.weights
+  const labels = feedbacks.labels
+  
+  function weightedAvg() {
+
+    let sum = 0
+
+    if (values.length === weights.length) {
+      let scores = values.map((_, i) => values[i] * weights[i])
+      scores.forEach(value => sum += value)
+    
+      return all === 0 
+                ? 0 
+                : sum / all
+
+    } else {
+      console.log('Lenghts of arrays are not equal.')
+      return Number.NaN
+    }
+  }
+
+  function positiveRate() {
+    return values[0] * 100 / all + ' %' 
+  }
+
+  let all = 0
+  values.forEach(value => all += value)
+
+  function get_statistics() {
+    let result = []
+
+    if (all === 0) return ['No feedback given']
+    
+    for (let i = 0; i < values.length; i++) {
+      result.push(<StatisticLine key={labels[i]} text={labels[i]} value={values[i]} />)
+    }
+    result.push(<StatisticLine key='all' text='All' value={all}/>)
+    result.push(<StatisticLine key='avg' text='Average' value={weightedAvg()}/>)
+    result.push(<StatisticLine key='pos' text='Positive' value={positiveRate()}/>)
+
+    return result
+  }
+  
   return (
-    <div>
-      {label}: {value}
-    </div>
+    <>
+      <h2>Statistics</h2>
+      <div>
+        {get_statistics()}
+      </div>
+    </>
   )
 }
 
@@ -36,51 +86,23 @@ const App = () => {
     setBad(bad + 1) 
   }
 
-  const weightedAvg = ({ values, weights }) => {
-
-    let sum = 0
-
-    if (values.length === weights.length) {
-      let scores = values.map((_, i) => values[i] * weights[i])
-      scores.forEach(value => sum += value)
-    
-      return all === 0 
-                ? 0 
-                : sum / all
-
-    } else {
-      console.log('Lenghts of arrays are not equal.')
-      return Number.NaN
-    }
-  }
-
   const goodLabel = 'Good'
   const neutralLabel = 'Neutral'
   const badLabel = 'Bad'
-  const allLabel = 'All'
-  const avgLabel = 'Average'
-  const positiveLabel = 'Positive'
 
-  const all = good + neutral + bad
-  const positivePercent = all === 0 ? 0 : (good * 100) / all + ' %'
-  const avg = weightedAvg({
+  const feedbacks = {
     values: [good, neutral, bad],
-    weights: [1, 0, -1]
-  })
-  
+    weights: [1, 0, -1],
+    labels: [goodLabel, neutralLabel, badLabel]
+  }
+
   return (
     <div>
       <h1>Give feedback</h1>
       <Button clickHandle={setGoodFeedback} label={goodLabel}/>
       <Button clickHandle={setNeutralFeedback} label={neutralLabel}/>
       <Button clickHandle={setBadFeedback} label={badLabel}/>
-      <h2>Statistics</h2>
-      <Stats label={goodLabel} value={good}/>
-      <Stats label={neutralLabel} value={neutral}/>
-      <Stats label={badLabel} value={bad}/>
-      <Stats label={allLabel} value={all}/>
-      <Stats label={avgLabel} value={avg}/>
-      <Stats label={positiveLabel} value={positivePercent}/>
+      <Statistics feedbacks={feedbacks}/>
     </div>
   )
 }
