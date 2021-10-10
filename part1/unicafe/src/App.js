@@ -9,14 +9,18 @@ const Button = ({ clickHandle, label }) => {
   )
 }
 
-const StatisticLine = ({ text, value }) => <div>{text}: {value}</div>
+const StatisticLine = ({ text, value }) => (
+  <tr>
+    <td>{text}: {value}</td>
+  </tr>
+)
 
-const Statistics = ({ feedbacks }) => {
+const TableBody = ({ feedbacks, all }) => {
 
   const values = feedbacks.values
   const weights = feedbacks.weights
   const labels = feedbacks.labels
-  
+
   function weightedAvg() {
 
     let sum = 0
@@ -35,34 +39,42 @@ const Statistics = ({ feedbacks }) => {
     }
   }
 
-  function positiveRate() {
-    return values[0] * 100 / all + ' %' 
+  let result = []
+
+  const positiveRate = () => values[0] * 100 / all + ' %'
+
+  for (let i = 0; i < values.length; i++) {
+    result.push(<StatisticLine key={labels[i]} text={labels[i]} value={values[i]}/>)
   }
+  result.push(<StatisticLine key='all' text='All' value={all}/>)
+  result.push(<StatisticLine key='avg' text='Average' value={weightedAvg()}/>)
+  result.push(<StatisticLine key='pos' text='Positive' value={positiveRate()}/>)
+
+  return result
+}
+
+const Statistics = ({ feedbacks }) => {
 
   let all = 0
-  values.forEach(value => all += value)
+  feedbacks.values.forEach(value => all += value)
 
-  function get_statistics() {
-    let result = []
+  function getStatisticsTable() {
 
     if (all === 0) return ['No feedback given']
     
-    for (let i = 0; i < values.length; i++) {
-      result.push(<StatisticLine key={labels[i]} text={labels[i]} value={values[i]} />)
-    }
-    result.push(<StatisticLine key='all' text='All' value={all}/>)
-    result.push(<StatisticLine key='avg' text='Average' value={weightedAvg()}/>)
-    result.push(<StatisticLine key='pos' text='Positive' value={positiveRate()}/>)
-
-    return result
+    return (
+      <table key={"statsTable"}>
+        <tbody key={"key2"}>
+          <TableBody feedbacks={feedbacks} all={all}/>
+        </tbody>
+      </table>
+    )
   }
   
   return (
     <>
       <h2>Statistics</h2>
-      <div>
-        {get_statistics()}
-      </div>
+      {getStatisticsTable()}
     </>
   )
 }
@@ -97,13 +109,13 @@ const App = () => {
   }
 
   return (
-    <div>
+    <>
       <h1>Give feedback</h1>
       <Button clickHandle={setGoodFeedback} label={goodLabel}/>
       <Button clickHandle={setNeutralFeedback} label={neutralLabel}/>
       <Button clickHandle={setBadFeedback} label={badLabel}/>
       <Statistics feedbacks={feedbacks}/>
-    </div>
+    </>
   )
 }
 
