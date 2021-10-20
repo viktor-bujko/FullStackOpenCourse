@@ -1,4 +1,6 @@
-const PersonForm = ({ name, phone, people}) => {
+import services from '../services/persons'
+
+const PersonForm = ({ name, phone, people }) => {
 
     const newName = name.state
     const persons = people.state
@@ -6,6 +8,28 @@ const PersonForm = ({ name, phone, people}) => {
     const setPersons = people.setter
     const setNewName = name.setter
     const setPhoneNumber = phone.setter
+
+    const setNewPhoneNumber = () => {
+      const idx = persons.findIndex(person => person.name === newName)
+
+      const msg = `${persons[idx].name} is already added to phonebook, replace the old number with a new one?`
+
+      if (!window.confirm(msg)) return
+      
+      let updatedPerson = { ...persons[idx], number: phoneNumber }
+
+      services.updatePerson(updatedPerson.id, updatedPerson)
+        .then(data => {
+          console.log(data)
+          setPersons(persons.map(person => person.id !== updatedPerson.id ? person : data))
+          setNewName('')
+          setPhoneNumber('')
+        })
+        .catch(_ => {
+          alert('Tried to update non-existing person! Try again.')
+        })
+
+    }
 
     const addPersonToPhoneBook = (event) => {
         event.preventDefault()
@@ -18,20 +42,24 @@ const PersonForm = ({ name, phone, people}) => {
         let userWithNameNotExists = persons.find(person => person.name === newName) !== undefined
     
         if (userWithNameNotExists) {
-          alert(`${newName} is already added to phonebook`)
+          setNewPhoneNumber()
           return
         }
     
         console.log('Adding ', {newName}, ' to the phonebook.')
-        setPersons(
-          persons.concat({ 
-            id: persons.length + 1,
-            name: newName,
-            number: phoneNumber
+        const newPerson = { 
+          name: newName,
+          number: phoneNumber
+        }
+
+        services
+          .createPerson(newPerson)
+          .then(data => {
+            console.log(data)
+            setPersons(persons.concat(newPerson))
+            setNewName('')
+            setPhoneNumber('')
           })
-        )
-        setNewName('')
-        setPhoneNumber('')
     }
 
     const nameChangeHandler = (event) => {
@@ -62,7 +90,7 @@ const PersonForm = ({ name, phone, people}) => {
                   />
         </div>
         <div>
-            <button type="submit">add</button>
+            <button type="submit">Add new person</button>
         </div>
       </form>
     )
