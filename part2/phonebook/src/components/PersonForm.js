@@ -1,32 +1,41 @@
 import services from '../services/persons'
 
-const PersonForm = ({ name, phone, people }) => {
+export const timeout = 3000
+
+const PersonForm = ({ name, number, people, error, success }) => {
 
     const newName = name.state
     const persons = people.state
-    const phoneNumber = phone.state
-    const setPersons = people.setter
-    const setNewName = name.setter
-    const setPhoneNumber = phone.setter
+    const phoneNumber = number.state
+    const nameSetter = name.setter
 
     const setNewPhoneNumber = () => {
       const idx = persons.findIndex(person => person.name === newName)
 
-      const msg = `${persons[idx].name} is already added to phonebook, replace the old number with a new one?`
+      const msg = `${persons[idx].name} is already added to phonebook. Replace the old number with a new one?`
 
       if (!window.confirm(msg)) return
       
       let updatedPerson = { ...persons[idx], number: phoneNumber }
+      console.log('UPDATE: ', updatedPerson)
 
       services.updatePerson(updatedPerson.id, updatedPerson)
         .then(data => {
           console.log(data)
-          setPersons(persons.map(person => person.id !== updatedPerson.id ? person : data))
-          setNewName('')
-          setPhoneNumber('')
+          people.setter(persons.map(person => person.id !== updatedPerson.id ? person : data))
+          nameSetter('')
+          number.setter('')
+          success.setter(`${updatedPerson.name}'s number has been updated successfully.`)
+          setTimeout(
+            () => success.setter(null), 
+            timeout
+          )
         })
         .catch(_ => {
-          alert('Tried to update non-existing person! Try again.')
+          error.setter(`Something went wrong during ${updatedPerson.name}'s phone number modification!`)
+          setTimeout(() => {
+            error.setter(null)
+          }, timeout)
         })
 
     }
@@ -53,25 +62,37 @@ const PersonForm = ({ name, phone, people }) => {
         }
 
         services
-          .createPerson(newPerson)
+          .createPerson(newPerson)  // newPerson must NOT be used below -> id is missing - use 'data' instead
           .then(data => {
-            console.log(data)
-            setPersons(persons.concat(newPerson))
-            setNewName('')
-            setPhoneNumber('')
+            console.log('Added: ', data)
+            people.setter(persons.concat(data))
+            success.setter(`${newName} has been added to the phonebook.`)
+            setTimeout(
+              () => success.setter(null),
+              timeout
+            )
+            nameSetter('')
+            number.setter('')
+          })
+          .catch(() => {
+            error.setter(`Something went wrong while adding ${newPerson.name} to the phonebook.`)
+            setTimeout(
+              () => error.setter(null),
+              timeout
+            )
           })
     }
 
     const nameChangeHandler = (event) => {
         let name = event.target.value
         console.log('Current input state: ', name)
-        setNewName(name)
+        nameSetter(name)
     }
     
     const phoneNumberHandler = (event) => {
         const phoneNumber = event.target.value
         console.log('Current phone number: ', phoneNumber)
-        setPhoneNumber(phoneNumber)
+        number.setter(phoneNumber)
     }
     
 
