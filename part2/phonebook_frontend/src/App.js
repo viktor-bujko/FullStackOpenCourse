@@ -10,12 +10,15 @@ const App = () => {
   const [ newName, setNewName ] = useState('')
   const [ phoneNumber, setPhoneNumber ] = useState('')
   const [ nameFilter, setNameFilter ] = useState('')
-  const [ errorMsg, setErrorMsg] = useState(null)
+  const [ errorMsg, setErrorMsg ] = useState(null)
   const [ successMsg, setSuccessMsg ] = useState(null)
 
   useEffect(() => {
     services.getPeople()    
-      .then( data => setPersons(data))
+      .then(data => {
+        console.log(data)
+        setPersons(data)
+      })
   }, [])
 
   const filterObject = { state: nameFilter, setter: setNameFilter }
