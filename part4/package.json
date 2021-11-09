@@ -7,7 +7,7 @@
     "start": "node index.js",
     "dev": "nodemon index.js -V -L",
     "deploy": "git status && git add . && git commit -m 'Deploy new version' && git push heroku master",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --verbose",
     "lint": "eslint ."
   },
   "author": "Viktor Bujko",
@@ -26,5 +26,7 @@
     "jest": "^27.3.1",
     "nodemon": "^2.0.14"
   },
-  "proxy": "localhost:3003"
+  "jest": {
+    "testEnvironment": "node"
+  }
 }
