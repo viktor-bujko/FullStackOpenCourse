@@ -8,15 +8,6 @@ const Blog = require("../models/blog")
 beforeEach(async () => {
   await Blog.deleteMany({})
   await Blog.insertMany(helper.initialBlogs)
-  /*console.log("cleared")
-
-  const blogsObjects = helper.initialBlogs.map(blog => new Blog(blog))
-  const promiseArray = blogsObjects.map(blog => blog.save())
-
-
-  await Promise.all(promiseArray)
-
-  console.log("done")*/
 })
 
 describe("Initial blogs tests - exercise 4.8.", () => {
